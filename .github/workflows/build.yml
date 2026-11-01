@@ -37,6 +37,7 @@ jobs:
           npx cap sync android || true
           npx cap copy android
         working-directory: ${{ env.ROOT }}
+        -: pip install pillow
       - run: python3 patch.py || python3 Aqorbox/patch.py || python3 ../patch.py
       - run: cd ${{ env.ROOT }}/android && ./gradlew assembleDebug
       - uses: actions/upload-artifact@v4
