@@ -1,0 +1,37 @@
+name: Build Aqorbox APK
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Unzip game
+        run: unzip -o aqorbox-android-admob.zip -d .
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build APK
+        run: |
+          ls -la
+          if [ -f "package.json" ]; then npm install; fi
+          if [ -d "android" ]; then
+            cd android
+            chmod +x gradlew
+            ./gradlew assembleDebug
+          else
+            echo "Tidak ada folder android di dalam zip!"
+          fi
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Aqorbox-APK
+          path: "**/app/build/outputs/apk/debug/*.apk"
