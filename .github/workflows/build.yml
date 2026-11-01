@@ -12,14 +12,36 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+      - name: Find project root
+        run: |
+          ls -la
+          ls -la Aqorbox || true
+          ROOT=$(find . -name "capacitor.config.json" -o -name "capacitor.config.ts" | head -1 | xargs dirname || echo ".")
+          echo "ROOT=$ROOT" >> $GITHUB_ENV
+          echo "Root is $ROOT"
       - run: npm install
-      - run: npm run build || npx vite build || (mkdir -p www && echo '<h1>AQORBOX</h1>' > www/index.html)
+        working-directory: ${{ env.ROOT }}
+      - run: |
+          mkdir -p www
+          mkdir -p Aqorbox/www || true
+          echo '<h1>AQORBOX</h1>' > www/index.html
+          echo '<h1>AQORBOX</h1>' > Aqorbox/www/index.html || true
+          mkdir -p android/app/src/main/assets || true
+          mkdir -p Aqorbox/android/app/src/main/assets || true
       - run: rm -rf android
+        working-directory: ${{ env.ROOT }}
       - run: npx cap add android
-      - run: npx cap sync android
-      - run: python3 patch.py
-      - run: cd android && ./gradlew assembleDebug
+        working-directory: ${{ env.ROOT }}
+      - run: |
+          mkdir -p android/app/src/main/assets
+          npx cap sync android || true
+          npx cap copy android
+        working-directory: ${{ env.ROOT }}
+      - run: python3 patch.py || python3 Aqorbox/patch.py || python3 ../patch.py
+      - run: cd ${{ env.ROOT }}/android && ./gradlew assembleDebug
       - uses: actions/upload-artifact@v4
         with:
           name: aqorbox-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: |
+            **/app/build/outputs/apk/debug/app-debug.apk
+            android/app/build/outputs/apk/debug/app-debug.apk
