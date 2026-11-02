@@ -3,8 +3,8 @@
   "appName": "AQORBOX",
   "webDir": "www",
   "server": {
-    "url": "https://symphonious-douhua-822aed.netlify.app",
+    "url": "https://izadtopup.online",
     "cleartext": false,
-    "allowNavigation": ["*.netlify.app", "izadtopup.online", "*.izadtopup.online", "*.firebaseapp.com", "*.googleapis.com", "*.googlesyndication.com"]
+    "allowNavigation": ["izadtopup.online", "*.izadtopup.online", "*.netlify.app", "*.firebaseapp.com", "*.googleapis.com", "*.googlesyndication.com", "*.gstatic.com", "cdn.jsdelivr.net"]
   }
 }
