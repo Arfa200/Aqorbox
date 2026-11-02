@@ -6,27 +6,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with:
-          node-version: 20
+        with: { node-version: 20 }
       - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
+        with: { distribution: temurin, java-version: 17 }
       - run: npm install
       - run: mkdir -p www && echo '<!doctype html><meta charset="utf-8"><title>AQORBOX</title>' > www/index.html
       - run: npx cap add android
       - run: pip install pillow
+      
+      - name: Pasang AdMob ID
+        run: |
+          echo "ca-app-pub-4350000590037428~6954308544" > admob_app_id.txt
+          echo "ca-app-pub-4350000590037428/6044551550" > admob_reward_id.txt
+          echo "APP ID dan REWARD ID udah dipasang!"
+
       - run: python3 patch.py
       - run: npx cap sync android
 
-      # TAMBAHAN BIAR GAK UNSIGNED - BIKIN KUNCI OTOMATIS
-      - name: Bikin Keystore Otomatis
+      - name: Bikin Keystore & Build Release Signed
         run: |
           keytool -genkey -v -keystore android/app/aqorbox.keystore -alias aqorbox -keyalg RSA -keysize 2048 -validity 10000 -storepass aqorbox123 -keypass aqorbox123 -dname "CN=AQORBOX, OU=Game, O=AQORBOX, L=Jakarta, ST=ID, C=ID"
-
-      # TAMBAHAN BUILD RELEASE SIGNED
-      - name: Build Release Signed
-        run: |
           cd android
           echo "
           android {
@@ -49,7 +48,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: aqorbox-release-signed
+          name: aqorbox-final-gembuy
           path: |
             android/app/build/outputs/apk/release/app-release.apk
             android/app/aqorbox.keystore
