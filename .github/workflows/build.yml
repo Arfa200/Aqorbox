@@ -13,6 +13,7 @@ jobs:
           distribution: temurin
           java-version: 17
       - run: npm install
+      - run: mkdir -p www && echo '<!doctype html><meta charset="utf-8"><title>AQORBOX</title>' > www/index.html
       - run: npx cap add android
       - run: pip install pillow
       - run: python3 patch.py
