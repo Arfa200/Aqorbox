@@ -18,8 +18,38 @@ jobs:
       - run: pip install pillow
       - run: python3 patch.py
       - run: npx cap sync android
-      - run: cd android && ./gradlew assembleDebug
+
+      # TAMBAHAN BIAR GAK UNSIGNED - BIKIN KUNCI OTOMATIS
+      - name: Bikin Keystore Otomatis
+        run: |
+          keytool -genkey -v -keystore android/app/aqorbox.keystore -alias aqorbox -keyalg RSA -keysize 2048 -validity 10000 -storepass aqorbox123 -keypass aqorbox123 -dname "CN=AQORBOX, OU=Game, O=AQORBOX, L=Jakarta, ST=ID, C=ID"
+
+      # TAMBAHAN BUILD RELEASE SIGNED
+      - name: Build Release Signed
+        run: |
+          cd android
+          echo "
+          android {
+            signingConfigs {
+              release {
+                storeFile file('aqorbox.keystore')
+                storePassword 'aqorbox123'
+                keyAlias 'aqorbox'
+                keyPassword 'aqorbox123'
+              }
+            }
+            buildTypes {
+              release {
+                signingConfig signingConfigs.release
+                minifyEnabled false
+              }
+            }
+          }" >> app/build.gradle
+          ./gradlew assembleRelease
+
       - uses: actions/upload-artifact@v4
         with:
-          name: aqorbox-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: aqorbox-release-signed
+          path: |
+            android/app/build/outputs/apk/release/app-release.apk
+            android/app/aqorbox.keystore
